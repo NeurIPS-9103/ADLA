@@ -124,7 +124,7 @@ class DiffAttention(nn.Module):
         self.lambda_q2 = nn.Parameter(torch.zeros(half_head_dim, dtype=torch.float32).normal_(mean=0, std=0.1))
         self.lambda_k2 = nn.Parameter(torch.zeros(half_head_dim, dtype=torch.float32).normal_(mean=0, std=0.1))
 
-        self.block_num_scale = 3
+        self.block_num_scale = 1
         init_spatial_side = input_resolution[0] if input_resolution[0] == input_resolution[1] \
             else int(round(math.sqrt(input_resolution[0] * input_resolution[1])))
         _, self.block_pos_tokens = self._compute_num_blocks(init_spatial_side)
@@ -137,7 +137,7 @@ class DiffAttention(nn.Module):
         )
 
         self.nf = 8
-        self.alpha = 2
+        self.alpha = 4
         self.router = nn.Linear(dim, self.nf)
         self.power = nn.Parameter(torch.zeros(self.nf))
         self.eps = 1e-6
