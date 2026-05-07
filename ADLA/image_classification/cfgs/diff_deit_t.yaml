@@ -1,0 +1,6 @@
+DATA:
+  BATCH_SIZE: 128
+MODEL:
+  TYPE: adla_deit_tiny
+  NAME: adla_deit_tiny
+  DROP_PATH_RATE: 0.0
