@@ -257,9 +257,18 @@ class DiffAttention(nn.Module):
         k = k ** token_powers
         q = (q / q.norm(dim=-1, keepdim=True)) * q_norm
         k = (k / k.norm(dim=-1, keepdim=True)) * k_norm
+        q1, q2 = q.chunk(2, dim=-1)
+        k1, k2 = k.chunk(2, dim=-1)
+        x1 = self._block_weighted_linear_attn(q1, k1, v)
+        x2 = self._global_linear_attn(q2, k2, v)
 
+        lambda_term1 = torch.exp(torch.sum(self.lambda_q1 * self.lambda_k1))
+        lambda_term2 = torch.exp(torch.sum(self.lambda_q2 * self.lambda_k2))
+        lambda_full = lambda_term1 - lambda_term2 + self.lambda_init
 
-        x = self._block_weighted_linear_attn(q, k, v)
+        x = x1 - x2 * lambda_full
+        x = self.diff_norm(x) * (1 - self.lambda_init)
+        
         x = x.transpose(1, 2).reshape(b, n, c)
         h = w = int(n ** 0.5)
         v_ = v[:, :, 1:, :].transpose(1, 2).reshape(b, h, w, c).permute(0, 3, 1, 2)
